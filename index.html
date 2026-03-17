@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The House of Barberium | Premium Barbershop in Hoylake</title>
+    <meta name="description" content="The House of Barberium — premium barbershop in Hoylake, Wirral. Classic haircuts, skin fades, hot towel shaves and more. 5-star rated.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --gold: #C4953A;
+            --gold-light: #D4A84A;
+            --gold-dark: #A47A2A;
+            --black: #1A1A1A;
+            --dark: #111111;
+            --cream: #FAF5EB;
+            --cream-dark: #F0E8D8;
+            --white: #FFFFFF;
+            --gray: #888888;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--black);
+            background: var(--white);
+            overflow-x: hidden;
+        }
+
+        /* ===== NAVIGATION ===== */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.4s ease;
+        }
+
+        nav.scrolled {
+            background: rgba(17, 17, 17, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0.8rem 2rem;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        }
+
+        .nav-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            font-weight: 300;
+            color: var(--white);
+            text-decoration: none;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .nav-logo span {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--gold);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--gold); }
+        .nav-links a:hover::after { width: 100%; }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 5px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 2px;
+            background: var(--white);
+            transition: all 0.3s;
+        }
+
+        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+        /* ===== HERO ===== */
+        .hero {
+            position: relative;
+            height: 100vh;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: url('images/interior.jpg') center center / cover no-repeat;
+            filter: brightness(0.3);
+            transform: scale(1.05);
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.8) 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 2rem;
+        }
+
+        .hero-scissors {
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .hero-pre {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 400;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 7vw, 5.5rem);
+            font-weight: 400;
+            color: var(--white);
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .hero-line {
+            width: 60px;
+            height: 1px;
+            background: var(--gold);
+            margin: 1.5rem auto;
+        }
+
+        .hero-sub {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            font-weight: 300;
+            color: rgba(255,255,255,0.7);
+            letter-spacing: 3px;
+            margin-bottom: 2.5rem;
+        }
+
+        .hero-btn {
+            display: inline-block;
+            padding: 1rem 3rem;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            transition: all 0.4s;
+        }
+
+        .hero-btn:hover {
+            background: var(--gold);
+            color: var(--black);
+        }
+
+        /* ===== SECTIONS ===== */
+        section { padding: 6rem 2rem; }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 400;
+            color: var(--black);
+            margin-bottom: 1rem;
+        }
+
+        .section-line {
+            width: 50px;
+            height: 1px;
+            background: var(--gold);
+            margin: 0 auto;
+        }
+
+        /* ===== ABOUT ===== */
+        .about {
+            background: var(--cream);
+        }
+
+        .about-grid {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .about-image {
+            position: relative;
+        }
+
+        .about-image img {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            object-position: center top;
+        }
+
+        .about-image::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            width: 100%;
+            height: 100%;
+            border: 1px solid var(--gold);
+            z-index: 0;
+        }
+
+        .about-image img {
+            position: relative;
+            z-index: 1;
+        }
+
+        .about-text h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+            color: var(--black);
+        }
+
+        .about-text p {
+            font-size: 0.95rem;
+            line-height: 1.9;
+            color: #555;
+            margin-bottom: 1.2rem;
+            font-weight: 300;
+        }
+
+        .about-name {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.2rem;
+            color: var(--gold-dark);
+            margin-top: 1.5rem;
+        }
+
+        /* ===== SERVICES ===== */
+        .services {
+            background: var(--dark);
+            color: var(--white);
+        }
+
+        .services .section-title { color: var(--white); }
+
+        .services-grid {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .service-card {
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+            border: 1px solid rgba(196, 149, 58, 0.15);
+            transition: all 0.4s;
+            position: relative;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: var(--gold);
+            transition: width 0.4s;
+        }
+
+        .service-card:hover {
+            border-color: rgba(196, 149, 58, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .service-card:hover::before { width: 60%; }
+
+        .service-icon {
+            font-size: 1.8rem;
+            margin-bottom: 1.2rem;
+            color: var(--gold);
+        }
+
+        .service-card h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            font-weight: 400;
+            margin-bottom: 0.8rem;
+            color: var(--white);
+        }
+
+        .service-card p {
+            font-size: 0.8rem;
+            font-weight: 300;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* ===== PACKAGES ===== */
+        .packages {
+            background: var(--cream);
+        }
+
+        .packages-list {
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .package-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.3rem 2rem;
+            background: var(--white);
+            border-left: 3px solid var(--gold);
+            transition: all 0.3s;
+        }
+
+        .package-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .package-item h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            font-weight: 400;
+        }
+
+        .package-item .pkg-icon {
+            color: var(--gold);
+            font-size: 1.2rem;
+        }
+
+        /* ===== GALLERY ===== */
+        .gallery {
+            background: var(--white);
+            padding-bottom: 4rem;
+        }
+
+        .gallery-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 1;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.08);
+        }
+
+        .gallery-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0);
+            transition: background 0.4s;
+        }
+
+        .gallery-item:hover::after {
+            background: rgba(196, 149, 58, 0.15);
+        }
+
+        /* ===== RATING BANNER ===== */
+        .rating-banner {
+            background: var(--gold);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .rating-banner .stars {
+            font-size: 1.8rem;
+            color: var(--black);
+            margin-bottom: 0.8rem;
+        }
+
+        .rating-banner p {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: var(--black);
+            font-weight: 400;
+        }
+
+        .rating-banner .rating-sub {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+            color: rgba(26, 26, 26, 0.7);
+        }
+
+        /* ===== CONTACT ===== */
+        .contact {
+            background: var(--dark);
+            color: var(--white);
+        }
+
+        .contact .section-title { color: var(--white); }
+
+        .contact-grid {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.2rem;
+        }
+
+        .contact-icon {
+            width: 45px;
+            height: 45px;
+            border: 1px solid rgba(196, 149, 58, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .contact-item h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-weight: 400;
+            margin-bottom: 0.3rem;
+        }
+
+        .contact-item p, .contact-item a {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.5);
+            font-weight: 300;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .contact-item a:hover { color: var(--gold); }
+
+        .contact-map {
+            width: 100%;
+            height: 100%;
+            min-height: 350px;
+            border: 1px solid rgba(196, 149, 58, 0.2);
+        }
+
+        .contact-map iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            filter: grayscale(80%) contrast(1.1);
+            transition: filter 0.4s;
+        }
+
+        .contact-map:hover iframe {
+            filter: grayscale(20%);
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: #0a0a0a;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--white);
+            margin-bottom: 1rem;
+        }
+
+        .footer-logo span { color: var(--gold); }
+
+        .footer-social {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .footer-social a:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        footer p {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 1px;
+        }
+
+        /* ===== MOBILE ===== */
+        @media (max-width: 768px) {
+            .hamburger { display: flex; }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                height: 100vh;
+                background: rgba(17, 17, 17, 0.98);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 2rem;
+                transition: right 0.4s;
+            }
+
+            .nav-links.active { right: 0; }
+
+            .nav-links a { font-size: 0.9rem; }
+
+            .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+
+            .about-image { order: -1; }
+
+            .about-image img { height: 350px; }
+
+            .about-image::before { top: -10px; left: -10px; }
+
+            .services-grid { grid-template-columns: 1fr; max-width: 400px; }
+
+            .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+
+            .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
+
+            .contact-map { min-height: 280px; }
+
+            .package-item { padding: 1rem 1.2rem; }
+
+            section { padding: 4rem 1.5rem; }
+        }
+
+        @media (max-width: 480px) {
+            .gallery-grid { grid-template-columns: 1fr 1fr; }
+            .hero-title { font-size: 2.5rem; }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <a href="#" class="nav-logo">The House of <span>Barberium</span></a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#about" onclick="closeMenu()">About</a></li>
+            <li><a href="#services" onclick="closeMenu()">Services</a></li>
+            <li><a href="#gallery" onclick="closeMenu()">Gallery</a></li>
+            <li><a href="#contact" onclick="closeMenu()">Contact</a></li>
+        </ul>
+        <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-scissors">&#9986;</div>
+            <p class="hero-pre">The House of</p>
+            <h1 class="hero-title"><em>Barberium</em></h1>
+            <div class="hero-line"></div>
+            <p class="hero-sub">Step Inside for a Cut Above</p>
+            <a href="#services" class="hero-btn">Our Services</a>
+        </div>
+    </section>
+
+    <!-- About -->
+    <section class="about" id="about">
+        <div class="section-header fade-in">
+            <p class="section-label">Our Story</p>
+            <h2 class="section-title">Welcome to The House of Barberium</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="about-grid">
+            <div class="about-image fade-in">
+                <img src="images/owner.jpg" alt="Ramazan Demirci — founder of The House of Barberium" loading="lazy">
+            </div>
+            <div class="about-text fade-in">
+                <h3>Tradition Meets Modern Craft</h3>
+                <p>Located on Market Street in the heart of Hoylake, The House of Barberium is a premium barbershop where classic grooming traditions meet modern style.</p>
+                <p>From precision skin fades to luxurious hot towel shaves, every service is delivered with care, skill, and attention to detail. Whether you're after a sharp new look or a relaxing grooming experience, you're in expert hands.</p>
+                <p>Walk-ins welcome. Appointments available.</p>
+                <p class="about-name">— Ramazan Demirci, Founder</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services -->
+    <section class="services" id="services">
+        <div class="section-header fade-in">
+            <p class="section-label">What We Offer</p>
+            <h2 class="section-title">Our Services</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="services-grid">
+            <div class="service-card fade-in">
+                <div class="service-icon">&#9986;</div>
+                <h4>Haircut</h4>
+                <p>Classic men's haircut and styling</p>
+            </div>
+            <div class="service-card fade-in">
+                <div class="service-icon">&#10024;</div>
+                <h4>Skin Fade</h4>
+                <p>Detailed fade finished with precision and care</p>
+            </div>
+            <div class="service-card fade-in">
+                <div class="service-icon">&#9985;</div>
+                <h4>Beard Trim</h4>
+                <p>Machine or scissor beard shaping to perfection</p>
+            </div>
+            <div class="service-card fade-in">
+                <div class="service-icon">&#129703;</div>
+                <h4>Standard Shave</h4>
+                <p>Traditional razor shave for a clean, sharp look</p>
+            </div>
+            <div class="service-card fade-in">
+                <div class="service-icon">&#9832;</div>
+                <h4>Hot Towel Shave</h4>
+                <p>Luxury shave with hot towels and premium products</p>
+            </div>
+            <div class="service-card fade-in">
+                <div class="service-icon">&#128136;</div>
+                <h4>Grade Cut</h4>
+                <p>One-length clipper cut, simple and precise</p>
+            </div>
+            <div class="service-card fade-in">
+                <div class="service-icon">&#128102;</div>
+                <h4>Kids Cut</h4>
+                <p>Gentle, stylish haircut for young gentlemen (under 16)</p>
+            </div>
+            <div class="service-card fade-in">
+                <div class="service-icon">&#128081;</div>
+                <h4>Senior Cut</h4>
+                <p>Classic, timeless cuts for distinguished gentlemen (65+)</p>
+            </div>
+            <div class="service-card fade-in">
+                <div class="service-icon">&#10029;</div>
+                <h4>Waxing</h4>
+                <p>Ears, nose, and eyebrows — refined finishing touches</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Packages -->
+    <section class="packages">
+        <div class="section-header fade-in">
+            <p class="section-label">Value Deals</p>
+            <h2 class="section-title">Packages</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="packages-list">
+            <div class="package-item fade-in">
+                <h4>Haircut + Beard Trim</h4>
+                <span class="pkg-icon">&#9986;</span>
+            </div>
+            <div class="package-item fade-in">
+                <h4>Haircut + Shave</h4>
+                <span class="pkg-icon">&#9986;</span>
+            </div>
+            <div class="package-item fade-in">
+                <h4>Haircut + Hot Towel Shave</h4>
+                <span class="pkg-icon">&#9986;</span>
+            </div>
+            <div class="package-item fade-in">
+                <h4>Haircut + Shave + Waxing (Ears, Nose &amp; Eyebrows)</h4>
+                <span class="pkg-icon">&#9986;</span>
+            </div>
+            <div class="package-item fade-in">
+                <h4>Haircut + Hot Towel Shave + Waxing (Ears, Nose &amp; Eyebrows)</h4>
+                <span class="pkg-icon">&#9986;</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery -->
+    <section class="gallery" id="gallery">
+        <div class="section-header fade-in">
+            <p class="section-label">Take a Look</p>
+            <h2 class="section-title">The Shop</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="gallery-grid">
+            <div class="gallery-item fade-in">
+                <img src="images/interior.jpg" alt="The House of Barberium interior — arch mirrors and barber chairs" loading="lazy">
+            </div>
+            <div class="gallery-item fade-in">
+                <img src="images/services-poster.jpg" alt="The House of Barberium services menu" loading="lazy">
+            </div>
+            <div class="gallery-item fade-in">
+                <img src="images/20260317_111057.jpg" alt="The House of Barberium business card" loading="lazy">
+            </div>
+        </div>
+    </section>
+
+    <!-- 5-Star Banner -->
+    <div class="rating-banner fade-in">
+        <div class="stars">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
+        <p>5.0 Rated on Google — 49 Reviews</p>
+        <p class="rating-sub">Hoylake's highest rated barbershop</p>
+    </div>
+
+    <!-- Contact -->
+    <section class="contact" id="contact">
+        <div class="section-header fade-in">
+            <p class="section-label">Get in Touch</p>
+            <h2 class="section-title">Find Us</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="contact-grid">
+            <div class="contact-info fade-in">
+                <div class="contact-item">
+                    <div class="contact-icon">&#128205;</div>
+                    <div>
+                        <h4>Address</h4>
+                        <p>90A Market St, Hoylake<br>Wirral, CH47 3BD</p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">&#128222;</div>
+                    <div>
+                        <h4>Phone</h4>
+                        <a href="tel:07518587168">07518 587 168</a>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">&#9993;</div>
+                    <div>
+                        <h4>Email</h4>
+                        <a href="mailto:thebarberium@hotmail.com">thebarberium@hotmail.com</a>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">&#128247;</div>
+                    <div>
+                        <h4>Instagram</h4>
+                        <a href="https://instagram.com/thehouseofbarberium" target="_blank" rel="noopener">@thehouseofbarberium</a>
+                    </div>
+                </div>
+            </div>
+            <div class="contact-map fade-in">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2374.5!2d-3.1827!3d53.3895!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487b26fd56ef4c57%3A0xc84e25ab5b09ace5!2s90a%20Market%20St%2C%20Hoylake%2C%20Wirral%20CH47%203BD!5e0!3m2!1sen!2suk!4v1710676800000!5m2!1sen!2suk"
+                    allowfullscreen
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    title="The House of Barberium location on Google Maps">
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-logo">The House of <span>Barberium</span></div>
+        <div class="footer-social">
+            <a href="tel:07518587168" aria-label="Call us">&#128222;</a>
+            <a href="https://instagram.com/thehouseofbarberium" target="_blank" rel="noopener" aria-label="Instagram">&#128247;</a>
+            <a href="mailto:thebarberium@hotmail.com" aria-label="Email">&#9993;</a>
+        </div>
+        <p>&copy; 2026 The House of Barberium. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Mobile menu
+        function toggleMenu() {
+            document.getElementById('hamburger').classList.toggle('active');
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        function closeMenu() {
+            document.getElementById('hamburger').classList.remove('active');
+            document.getElementById('navLinks').classList.remove('active');
+        }
+
+        // Scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    </script>
+
+</body>
+</html>
