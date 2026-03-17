@@ -255,39 +255,9 @@
         }
 
         .about-grid {
-            max-width: 1100px;
+            max-width: 750px;
             margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-        }
-
-        .about-image {
-            position: relative;
-        }
-
-        .about-image img {
-            width: 100%;
-            height: 500px;
-            object-fit: cover;
-            object-position: center top;
-        }
-
-        .about-image::before {
-            content: '';
-            position: absolute;
-            top: -15px;
-            left: -15px;
-            width: 100%;
-            height: 100%;
-            border: 1px solid var(--gold);
-            z-index: 0;
-        }
-
-        .about-image img {
-            position: relative;
-            z-index: 1;
+            text-align: center;
         }
 
         .about-text h3 {
@@ -637,13 +607,7 @@
 
             .nav-links a { font-size: 0.9rem; }
 
-            .about-grid { grid-template-columns: 1fr; gap: 2rem; }
-
-            .about-image { order: -1; }
-
-            .about-image img { height: 350px; }
-
-            .about-image::before { top: -10px; left: -10px; }
+            .about-grid { max-width: 100%; }
 
             .services-grid { grid-template-columns: 1fr; max-width: 400px; }
 
@@ -714,9 +678,6 @@
             <div class="section-line"></div>
         </div>
         <div class="about-grid">
-            <div class="about-image fade-in">
-                <img src="images/owner.jpg" alt="Ramazan Demirci — founder of The House of Barberium" loading="lazy">
-            </div>
             <div class="about-text fade-in">
                 <h3>Tradition Meets Modern Craft</h3>
                 <p>Located on Market Street in the heart of Hoylake, The House of Barberium is a premium barbershop where classic grooming traditions meet modern style.</p>
