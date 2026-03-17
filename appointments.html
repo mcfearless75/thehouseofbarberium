@@ -433,6 +433,44 @@
             background: var(--white);
         }
 
+        /* Autocomplete */
+        .name-wrapper { position: relative; }
+
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border: 1px solid var(--cream-dark);
+            border-top: none;
+            max-height: 180px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+        }
+
+        .autocomplete-list.visible { display: block; }
+
+        .ac-item {
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            border-bottom: 1px solid var(--cream);
+        }
+
+        .ac-item:hover, .ac-item.selected { background: var(--cream); }
+
+        .ac-item .ac-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .ac-item .ac-phone {
+            font-size: 0.7rem;
+            color: var(--gray);
+        }
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -592,7 +630,10 @@
                 <input type="hidden" id="editId">
                 <div class="form-group">
                     <label>Customer Name *</label>
-                    <input type="text" id="formName" placeholder="e.g. John Smith" autocomplete="off">
+                    <div class="name-wrapper">
+                        <input type="text" id="formName" placeholder="e.g. John Smith" autocomplete="off" oninput="onNameInput()" onkeydown="onNameKeydown(event)">
+                        <div class="autocomplete-list" id="acList"></div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Phone (optional)</label>
@@ -660,6 +701,89 @@
         function saveAppointments(appts) {
             localStorage.setItem('barberium_appointments', JSON.stringify(appts));
         }
+
+        function getContacts() {
+            return JSON.parse(localStorage.getItem('barberium_contacts') || '[]');
+        }
+
+        function saveContact(name, phone) {
+            if (!name) return;
+            let contacts = getContacts();
+            const existing = contacts.find(c => c.name.toLowerCase() === name.toLowerCase());
+            if (existing) {
+                if (phone) existing.phone = phone;
+            } else {
+                contacts.push({ name, phone: phone || '' });
+            }
+            contacts.sort((a, b) => a.name.localeCompare(b.name));
+            localStorage.setItem('barberium_contacts', JSON.stringify(contacts));
+        }
+
+        // ===== AUTOCOMPLETE =====
+        let acIndex = -1;
+
+        function onNameInput() {
+            const q = document.getElementById('formName').value.trim().toLowerCase();
+            const list = document.getElementById('acList');
+            acIndex = -1;
+
+            if (q.length < 1) {
+                list.classList.remove('visible');
+                return;
+            }
+
+            const contacts = getContacts().filter(c => c.name.toLowerCase().includes(q));
+            if (contacts.length === 0) {
+                list.classList.remove('visible');
+                return;
+            }
+
+            list.innerHTML = contacts.slice(0, 8).map((c, i) =>
+                `<div class="ac-item" onmousedown="selectContact(${i})">
+                    <div class="ac-name">${escHtml(c.name)}</div>
+                    ${c.phone ? `<div class="ac-phone">${escHtml(c.phone)}</div>` : ''}
+                </div>`
+            ).join('');
+            list._contacts = contacts.slice(0, 8);
+            list.classList.add('visible');
+        }
+
+        function onNameKeydown(e) {
+            const list = document.getElementById('acList');
+            if (!list.classList.contains('visible')) return;
+            const items = list.querySelectorAll('.ac-item');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                acIndex = Math.min(acIndex + 1, items.length - 1);
+                items.forEach((el, i) => el.classList.toggle('selected', i === acIndex));
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                acIndex = Math.max(acIndex - 1, 0);
+                items.forEach((el, i) => el.classList.toggle('selected', i === acIndex));
+            } else if (e.key === 'Enter' && acIndex >= 0) {
+                e.preventDefault();
+                selectContact(acIndex);
+            } else if (e.key === 'Escape') {
+                list.classList.remove('visible');
+            }
+        }
+
+        function selectContact(idx) {
+            const list = document.getElementById('acList');
+            const contact = list._contacts[idx];
+            if (!contact) return;
+            document.getElementById('formName').value = contact.name;
+            if (contact.phone) document.getElementById('formPhone').value = contact.phone;
+            list.classList.remove('visible');
+            acIndex = -1;
+        }
+
+        // Hide autocomplete on blur
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.name-wrapper')) {
+                document.getElementById('acList').classList.remove('visible');
+            }
+        });
 
         // ===== HELPERS =====
         function dateStr(d) {
@@ -968,6 +1092,7 @@
             }
 
             saveAppointments(appts);
+            saveContact(name, phone);
             closeModal();
             render();
         }
