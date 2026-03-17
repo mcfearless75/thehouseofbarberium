@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Barberium — Appointments</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --gold: #C4953A;
+            --gold-light: #D4A84A;
+            --gold-dark: #A47A2A;
+            --black: #1A1A1A;
+            --dark: #111111;
+            --cream: #FAF5EB;
+            --cream-dark: #F0E8D8;
+            --white: #FFFFFF;
+            --gray: #888888;
+            --green: #2E7D32;
+            --red: #C62828;
+        }
+
+        html { font-size: 16px; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--cream);
+            color: var(--black);
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: var(--dark);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: var(--white);
+        }
+
+        .header h1 span { color: var(--gold); }
+
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: 1px solid var(--gold);
+            background: transparent;
+            color: var(--gold);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 0;
+        }
+
+        .btn:hover, .btn:active { background: var(--gold); color: var(--black); }
+
+        .btn-primary { background: var(--gold); color: var(--black); }
+        .btn-primary:hover { background: var(--gold-light); }
+
+        .btn-danger { border-color: var(--red); color: var(--red); }
+        .btn-danger:hover { background: var(--red); color: var(--white); }
+
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.7rem; }
+
+        /* ===== TOOLBAR ===== */
+        .toolbar {
+            background: var(--white);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--cream-dark);
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .date-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .date-nav button {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--cream-dark);
+            background: var(--white);
+            color: var(--black);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .date-nav button:hover { border-color: var(--gold); color: var(--gold); }
+
+        .date-display {
+            font-size: 1rem;
+            font-weight: 500;
+            min-width: 200px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .date-display:hover { color: var(--gold); }
+
+        .date-display .today-label {
+            font-size: 0.7rem;
+            color: var(--gold);
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .toolbar-right {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .view-toggle {
+            display: flex;
+            border: 1px solid var(--cream-dark);
+        }
+
+        .view-toggle button {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: var(--white);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            color: var(--gray);
+            transition: all 0.2s;
+        }
+
+        .view-toggle button.active {
+            background: var(--dark);
+            color: var(--white);
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 0.5rem 0.8rem 0.5rem 2rem;
+            border: 1px solid var(--cream-dark);
+            background: var(--white);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            width: 180px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus { border-color: var(--gold); }
+
+        .search-box::before {
+            content: '\1F50D';
+            position: absolute;
+            left: 0.6rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* ===== DAY VIEW ===== */
+        .day-view {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+        }
+
+        .time-slot {
+            display: flex;
+            align-items: stretch;
+            min-height: 60px;
+            border-bottom: 1px solid var(--cream-dark);
+        }
+
+        .time-label {
+            width: 70px;
+            padding: 0.8rem 0;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--gray);
+            flex-shrink: 0;
+        }
+
+        .slot-content {
+            flex: 1;
+            padding: 0.5rem;
+            min-height: 60px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .slot-content:hover { background: rgba(196, 149, 58, 0.05); }
+
+        .slot-content.empty::after {
+            content: '+ Add';
+            color: var(--cream-dark);
+            font-size: 0.8rem;
+            font-weight: 400;
+            transition: color 0.2s;
+        }
+
+        .slot-content.empty:hover::after { color: var(--gold); }
+
+        .appointment-card {
+            background: var(--white);
+            border-left: 3px solid var(--gold);
+            padding: 0.6rem 1rem;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .appointment-card:hover {
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transform: translateX(2px);
+        }
+
+        .appointment-card .appt-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .appointment-card .appt-service {
+            font-size: 0.75rem;
+            color: var(--gold-dark);
+            font-weight: 500;
+        }
+
+        .appointment-card .appt-phone {
+            font-size: 0.7rem;
+            color: var(--gray);
+            margin-top: 0.15rem;
+        }
+
+        /* ===== WEEK VIEW ===== */
+        .week-view {
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        .week-grid {
+            display: grid;
+            grid-template-columns: 70px repeat(7, minmax(120px, 1fr));
+            min-width: 700px;
+        }
+
+        .week-header {
+            padding: 0.8rem 0.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray);
+            border-bottom: 2px solid var(--cream-dark);
+        }
+
+        .week-header.today {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+
+        .week-header .day-num {
+            display: block;
+            font-size: 1.3rem;
+            font-weight: 400;
+            font-family: 'Playfair Display', serif;
+            color: var(--black);
+            margin-top: 0.2rem;
+        }
+
+        .week-header.today .day-num { color: var(--gold); }
+
+        .week-time-label {
+            padding: 0.4rem 0;
+            font-size: 0.7rem;
+            color: var(--gray);
+            border-bottom: 1px solid var(--cream-dark);
+            display: flex;
+            align-items: center;
+        }
+
+        .week-cell {
+            border-bottom: 1px solid var(--cream-dark);
+            border-left: 1px solid var(--cream-dark);
+            padding: 0.2rem;
+            min-height: 40px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .week-cell:hover { background: rgba(196, 149, 58, 0.05); }
+
+        .week-cell .mini-appt {
+            background: var(--gold);
+            color: var(--black);
+            padding: 0.2rem 0.4rem;
+            font-size: 0.65rem;
+            font-weight: 500;
+            border-radius: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: var(--white);
+            width: 100%;
+            max-width: 450px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            background: var(--dark);
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: var(--white);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0.2rem;
+        }
+
+        .modal-close:hover { color: var(--white); }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--gray);
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--cream-dark);
+            background: var(--cream);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            color: var(--black);
+            outline: none;
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--gold);
+            background: var(--white);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .modal-footer {
+            padding: 0 1.5rem 1.5rem;
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .modal-footer .btn { flex: 1; padding: 0.8rem; }
+
+        /* ===== SEARCH RESULTS ===== */
+        .search-results {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+        }
+
+        .search-results h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            color: var(--gray);
+        }
+
+        .search-result-item {
+            background: var(--white);
+            border-left: 3px solid var(--gold);
+            padding: 1rem 1.2rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .search-result-item:hover { transform: translateX(3px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+        .search-result-item .sr-date {
+            font-size: 0.7rem;
+            color: var(--gray);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .search-result-item .sr-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin: 0.2rem 0;
+        }
+
+        .search-result-item .sr-service {
+            font-size: 0.8rem;
+            color: var(--gold-dark);
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-day {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--gray);
+        }
+
+        .empty-day .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .empty-day p { font-size: 0.9rem; }
+
+        /* ===== STATS BAR ===== */
+        .stats-bar {
+            background: var(--white);
+            padding: 0.6rem 1.5rem;
+            display: flex;
+            gap: 2rem;
+            border-bottom: 1px solid var(--cream-dark);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .stat {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .stat strong {
+            color: var(--black);
+            font-weight: 600;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .header { padding: 0.8rem 1rem; }
+            .header h1 { font-size: 1.1rem; }
+            .toolbar { padding: 0.8rem 1rem; }
+            .date-display { min-width: 150px; font-size: 0.9rem; }
+            .search-box input { width: 140px; font-size: 0.8rem; }
+            .day-view { padding: 0.5rem 1rem; }
+            .stats-bar { padding: 0.5rem 1rem; gap: 1rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .view-toggle button { padding: 0.4rem 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>Barberium <span>Appointments</span></h1>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="openAddModal()">+ New</button>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="date-nav">
+            <button onclick="navigateDate(-1)" title="Previous">&#8249;</button>
+            <div class="date-display" onclick="goToToday()" id="dateDisplay"></div>
+            <button onclick="navigateDate(1)" title="Next">&#8250;</button>
+        </div>
+        <div class="toolbar-right">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search name..." oninput="handleSearch()">
+            </div>
+            <div class="view-toggle">
+                <button class="active" id="dayBtn" onclick="setView('day')">Day</button>
+                <button id="weekBtn" onclick="setView('week')">Week</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-bar" id="statsBar"></div>
+
+    <!-- Day View -->
+    <div class="day-view" id="dayView"></div>
+
+    <!-- Week View -->
+    <div class="week-view" id="weekView" style="display:none;"></div>
+
+    <!-- Search Results -->
+    <div class="search-results" id="searchResults" style="display:none;"></div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">New Appointment</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label>Customer Name *</label>
+                    <input type="text" id="formName" placeholder="e.g. John Smith" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Phone (optional)</label>
+                    <input type="tel" id="formPhone" placeholder="e.g. 07700 900000">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Date *</label>
+                        <input type="date" id="formDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Time *</label>
+                        <select id="formTime"></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Service *</label>
+                    <select id="formService"></select>
+                </div>
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <input type="text" id="formNotes" placeholder="Any notes...">
+                </div>
+            </div>
+            <div class="modal-footer" id="modalFooter">
+                <button class="btn" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveAppointment()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== DATA =====
+        const SERVICES = [
+            'Haircut',
+            'Skin Fade',
+            'Beard Trim',
+            'Standard Shave',
+            'Hot Towel Shave',
+            'Grade Cut',
+            'Kids Cut (under 16)',
+            'Senior Cut (65+)',
+            'Waxing',
+            'Haircut + Beard Trim',
+            'Haircut + Shave',
+            'Haircut + Hot Towel Shave',
+            'Haircut + Shave + Waxing',
+            'Haircut + Hot Towel Shave + Waxing'
+        ];
+
+        const TIME_SLOTS = [];
+        for (let h = 9; h < 18; h++) {
+            TIME_SLOTS.push(`${h.toString().padStart(2,'0')}:00`);
+            TIME_SLOTS.push(`${h.toString().padStart(2,'0')}:30`);
+        }
+
+        let currentDate = new Date();
+        let currentView = 'day';
+
+        // ===== STORAGE =====
+        function getAppointments() {
+            return JSON.parse(localStorage.getItem('barberium_appointments') || '[]');
+        }
+
+        function saveAppointments(appts) {
+            localStorage.setItem('barberium_appointments', JSON.stringify(appts));
+        }
+
+        // ===== HELPERS =====
+        function dateStr(d) {
+            return d.getFullYear() + '-' +
+                   (d.getMonth()+1).toString().padStart(2,'0') + '-' +
+                   d.getDate().toString().padStart(2,'0');
+        }
+
+        function todayStr() { return dateStr(new Date()); }
+
+        function formatDateDisplay(d) {
+            const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            return days[d.getDay()] + ', ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+        }
+
+        function formatTime12(t) {
+            const [h, m] = t.split(':').map(Number);
+            const ampm = h >= 12 ? 'pm' : 'am';
+            const hr = h % 12 || 12;
+            return hr + ':' + m.toString().padStart(2,'0') + ampm;
+        }
+
+        function getWeekStart(d) {
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday start
+            return new Date(d.getFullYear(), d.getMonth(), diff);
+        }
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        }
+
+        // ===== INIT FORM OPTIONS =====
+        function initFormOptions() {
+            const timeSelect = document.getElementById('formTime');
+            TIME_SLOTS.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = formatTime12(t);
+                timeSelect.appendChild(opt);
+            });
+
+            const serviceSelect = document.getElementById('formService');
+            SERVICES.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                serviceSelect.appendChild(opt);
+            });
+        }
+
+        // ===== RENDER =====
+        function render() {
+            updateDateDisplay();
+            if (currentView === 'day') {
+                renderDayView();
+            } else {
+                renderWeekView();
+            }
+        }
+
+        function updateDateDisplay() {
+            const el = document.getElementById('dateDisplay');
+            const isToday = dateStr(currentDate) === todayStr();
+            el.innerHTML = (isToday ? '<div class="today-label">Today</div>' : '') +
+                           formatDateDisplay(currentDate);
+        }
+
+        function renderDayView() {
+            const appts = getAppointments().filter(a => a.date === dateStr(currentDate));
+            const container = document.getElementById('dayView');
+
+            // Stats
+            document.getElementById('statsBar').innerHTML =
+                `<div class="stat"><strong>${appts.length}</strong> appointment${appts.length !== 1 ? 's' : ''}</div>` +
+                `<div class="stat"><strong>${TIME_SLOTS.length - appts.length}</strong> slots free</div>`;
+
+            let html = '';
+            TIME_SLOTS.forEach(time => {
+                const appt = appts.find(a => a.time === time);
+                if (appt) {
+                    html += `
+                        <div class="time-slot">
+                            <div class="time-label">${formatTime12(time)}</div>
+                            <div class="slot-content" onclick="openEditModal('${appt.id}')">
+                                <div class="appointment-card">
+                                    <div class="appt-name">${escHtml(appt.name)}</div>
+                                    <div class="appt-service">${escHtml(appt.service)}</div>
+                                    ${appt.phone ? `<div class="appt-phone">${escHtml(appt.phone)}</div>` : ''}
+                                </div>
+                            </div>
+                        </div>`;
+                } else {
+                    html += `
+                        <div class="time-slot">
+                            <div class="time-label">${formatTime12(time)}</div>
+                            <div class="slot-content empty" onclick="openAddModal('${dateStr(currentDate)}', '${time}')"></div>
+                        </div>`;
+                }
+            });
+
+            container.innerHTML = html;
+        }
+
+        function renderWeekView() {
+            const weekStart = getWeekStart(currentDate);
+            const days = [];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(weekStart);
+                d.setDate(d.getDate() + i);
+                days.push(d);
+            }
+
+            const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+            const allAppts = getAppointments();
+            const container = document.getElementById('weekView');
+
+            // Stats for the week
+            const weekAppts = allAppts.filter(a => {
+                return days.some(d => dateStr(d) === a.date);
+            });
+            document.getElementById('statsBar').innerHTML =
+                `<div class="stat"><strong>${weekAppts.length}</strong> this week</div>`;
+
+            let html = '<div class="week-grid">';
+
+            // Header row
+            html += '<div class="week-header"></div>';
+            days.forEach((d, i) => {
+                const isToday = dateStr(d) === todayStr();
+                html += `<div class="week-header ${isToday ? 'today' : ''}">
+                    ${dayNames[i]}
+                    <span class="day-num">${d.getDate()}</span>
+                </div>`;
+            });
+
+            // Time rows
+            TIME_SLOTS.forEach(time => {
+                html += `<div class="week-time-label">${formatTime12(time)}</div>`;
+                days.forEach(d => {
+                    const ds = dateStr(d);
+                    const appt = allAppts.find(a => a.date === ds && a.time === time);
+                    if (appt) {
+                        html += `<div class="week-cell" onclick="openEditModal('${appt.id}')">
+                            <div class="mini-appt" title="${escHtml(appt.name)} — ${escHtml(appt.service)}">${escHtml(appt.name)}</div>
+                        </div>`;
+                    } else {
+                        html += `<div class="week-cell" onclick="openAddModal('${ds}', '${time}')"></div>`;
+                    }
+                });
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // ===== NAVIGATION =====
+        function navigateDate(dir) {
+            if (currentView === 'day') {
+                currentDate.setDate(currentDate.getDate() + dir);
+            } else {
+                currentDate.setDate(currentDate.getDate() + (dir * 7));
+            }
+            render();
+        }
+
+        function goToToday() {
+            currentDate = new Date();
+            render();
+        }
+
+        function setView(view) {
+            currentView = view;
+            document.getElementById('dayBtn').classList.toggle('active', view === 'day');
+            document.getElementById('weekBtn').classList.toggle('active', view === 'week');
+            document.getElementById('dayView').style.display = view === 'day' ? '' : 'none';
+            document.getElementById('weekView').style.display = view === 'week' ? '' : 'none';
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('searchInput').value = '';
+            render();
+        }
+
+        // ===== SEARCH =====
+        function handleSearch() {
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (q.length < 2) {
+                document.getElementById('searchResults').style.display = 'none';
+                document.getElementById('dayView').style.display = currentView === 'day' ? '' : 'none';
+                document.getElementById('weekView').style.display = currentView === 'week' ? '' : 'none';
+                return;
+            }
+
+            document.getElementById('dayView').style.display = 'none';
+            document.getElementById('weekView').style.display = 'none';
+            document.getElementById('searchResults').style.display = '';
+
+            const appts = getAppointments()
+                .filter(a => a.name.toLowerCase().includes(q) || (a.phone && a.phone.includes(q)))
+                .sort((a, b) => a.date > b.date ? -1 : 1);
+
+            const container = document.getElementById('searchResults');
+            if (appts.length === 0) {
+                container.innerHTML = '<h3>No results</h3>';
+                return;
+            }
+
+            let html = `<h3>${appts.length} result${appts.length !== 1 ? 's' : ''}</h3>`;
+            appts.forEach(a => {
+                const d = new Date(a.date + 'T00:00:00');
+                html += `<div class="search-result-item" onclick="openEditModal('${a.id}')">
+                    <div class="sr-date">${formatDateDisplay(d)} at ${formatTime12(a.time)}</div>
+                    <div class="sr-name">${escHtml(a.name)}</div>
+                    <div class="sr-service">${escHtml(a.service)}${a.phone ? ' &middot; ' + escHtml(a.phone) : ''}</div>
+                </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // ===== MODAL =====
+        function openAddModal(date, time) {
+            document.getElementById('editId').value = '';
+            document.getElementById('modalTitle').textContent = 'New Appointment';
+            document.getElementById('formName').value = '';
+            document.getElementById('formPhone').value = '';
+            document.getElementById('formDate').value = date || dateStr(currentDate);
+            document.getElementById('formTime').value = time || findNextFreeSlot();
+            document.getElementById('formService').value = SERVICES[0];
+            document.getElementById('formNotes').value = '';
+
+            document.getElementById('modalFooter').innerHTML = `
+                <button class="btn" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveAppointment()">Save</button>
+            `;
+
+            document.getElementById('modalOverlay').classList.add('active');
+            setTimeout(() => document.getElementById('formName').focus(), 100);
+        }
+
+        function openEditModal(id) {
+            const appts = getAppointments();
+            const appt = appts.find(a => a.id === id);
+            if (!appt) return;
+
+            document.getElementById('editId').value = appt.id;
+            document.getElementById('modalTitle').textContent = 'Edit Appointment';
+            document.getElementById('formName').value = appt.name;
+            document.getElementById('formPhone').value = appt.phone || '';
+            document.getElementById('formDate').value = appt.date;
+            document.getElementById('formTime').value = appt.time;
+            document.getElementById('formService').value = appt.service;
+            document.getElementById('formNotes').value = appt.notes || '';
+
+            document.getElementById('modalFooter').innerHTML = `
+                <button class="btn btn-danger" onclick="deleteAppointment('${appt.id}')">Delete</button>
+                <button class="btn btn-primary" onclick="saveAppointment()">Update</button>
+            `;
+
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        function closeModalOutside(e) {
+            if (e.target === document.getElementById('modalOverlay')) closeModal();
+        }
+
+        function findNextFreeSlot() {
+            const appts = getAppointments().filter(a => a.date === dateStr(currentDate));
+            const taken = appts.map(a => a.time);
+            return TIME_SLOTS.find(t => !taken.includes(t)) || TIME_SLOTS[0];
+        }
+
+        // ===== CRUD =====
+        function saveAppointment() {
+            const name = document.getElementById('formName').value.trim();
+            const phone = document.getElementById('formPhone').value.trim();
+            const date = document.getElementById('formDate').value;
+            const time = document.getElementById('formTime').value;
+            const service = document.getElementById('formService').value;
+            const notes = document.getElementById('formNotes').value.trim();
+            const editId = document.getElementById('editId').value;
+
+            if (!name || !date || !time || !service) {
+                alert('Please fill in name, date, time and service.');
+                return;
+            }
+
+            let appts = getAppointments();
+
+            // Check for double booking (skip if editing same slot)
+            const conflict = appts.find(a => a.date === date && a.time === time && a.id !== editId);
+            if (conflict) {
+                if (!confirm(`${formatTime12(time)} is already booked for ${conflict.name}. Double book?`)) {
+                    return;
+                }
+            }
+
+            if (editId) {
+                appts = appts.map(a => a.id === editId ? { ...a, name, phone, date, time, service, notes } : a);
+            } else {
+                appts.push({ id: generateId(), name, phone, date, time, service, notes });
+            }
+
+            saveAppointments(appts);
+            closeModal();
+            render();
+        }
+
+        function deleteAppointment(id) {
+            if (!confirm('Delete this appointment?')) return;
+            let appts = getAppointments().filter(a => a.id !== id);
+            saveAppointments(appts);
+            closeModal();
+            render();
+        }
+
+        // ===== UTILS =====
+        function escHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ===== KEYBOARD =====
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+            if (document.getElementById('modalOverlay').classList.contains('active')) return;
+            if (e.key === 'ArrowLeft') navigateDate(-1);
+            if (e.key === 'ArrowRight') navigateDate(1);
+            if (e.key === 't' || e.key === 'T') goToToday();
+        });
+
+        // ===== INIT =====
+        initFormOptions();
+        render();
+    </script>
+
+</body>
+</html>
