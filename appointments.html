@@ -332,6 +332,11 @@
         }
 
         .week-cell:hover { background: rgba(196, 149, 58, 0.05); }
+        .week-cell.closed {
+            background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(0,0,0,0.03) 4px, rgba(0,0,0,0.03) 8px);
+            cursor: default;
+        }
+        .week-cell.closed:hover { background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(0,0,0,0.03) 4px, rgba(0,0,0,0.03) 8px); }
 
         .week-cell .mini-appt {
             background: var(--gold);
@@ -684,10 +689,33 @@
             'Haircut + Hot Towel Shave + Waxing'
         ];
 
-        const TIME_SLOTS = [];
-        for (let h = 9; h < 18; h++) {
-            TIME_SLOTS.push(`${h.toString().padStart(2,'0')}:00`);
-            TIME_SLOTS.push(`${h.toString().padStart(2,'0')}:30`);
+        // Opening hours by day (0=Sun, 1=Mon ... 6=Sat)
+        const SCHEDULE = {
+            0: { open: 9, close: 16, label: 'Sun 9am–4pm' },
+            1: { open: 8, close: 18, label: 'Mon 8am–6pm' },
+            2: { open: 8, close: 18, label: 'Tue 8am–6pm' },
+            3: { open: 8, close: 18, label: 'Wed 8am–6pm' },
+            4: { open: 8, close: 19, label: 'Thu 8am–7pm' },
+            5: { open: 8, close: 19, label: 'Fri 8am–7pm' },
+            6: { open: 8, close: 18, label: 'Sat 8am–6pm' },
+        };
+
+        function getTimeSlotsForDate(d) {
+            const day = (typeof d === 'string') ? new Date(d + 'T00:00:00').getDay() : d.getDay();
+            const sched = SCHEDULE[day];
+            const slots = [];
+            for (let h = sched.open; h < sched.close; h++) {
+                slots.push(`${h.toString().padStart(2,'0')}:00`);
+                slots.push(`${h.toString().padStart(2,'0')}:30`);
+            }
+            return slots;
+        }
+
+        // All possible slots (for week view headers etc.)
+        const ALL_TIME_SLOTS = [];
+        for (let h = 8; h < 19; h++) {
+            ALL_TIME_SLOTS.push(`${h.toString().padStart(2,'0')}:00`);
+            ALL_TIME_SLOTS.push(`${h.toString().padStart(2,'0')}:30`);
         }
 
         let currentDate = new Date();
@@ -818,13 +846,27 @@
         }
 
         // ===== INIT FORM OPTIONS =====
-        function initFormOptions() {
+        function updateTimeOptions(dateVal) {
             const timeSelect = document.getElementById('formTime');
-            TIME_SLOTS.forEach(t => {
+            const currentVal = timeSelect.value;
+            timeSelect.innerHTML = '';
+            const slots = getTimeSlotsForDate(dateVal || dateStr(currentDate));
+            slots.forEach(t => {
                 const opt = document.createElement('option');
                 opt.value = t;
                 opt.textContent = formatTime12(t);
                 timeSelect.appendChild(opt);
+            });
+            // Restore previous selection if still valid
+            if (slots.includes(currentVal)) timeSelect.value = currentVal;
+        }
+
+        function initFormOptions() {
+            updateTimeOptions();
+
+            // Update time slots when date changes
+            document.getElementById('formDate').addEventListener('change', function() {
+                updateTimeOptions(this.value);
             });
 
             const serviceSelect = document.getElementById('formService');
@@ -856,14 +898,17 @@
         function renderDayView() {
             const appts = getAppointments().filter(a => a.date === dateStr(currentDate));
             const container = document.getElementById('dayView');
+            const daySlots = getTimeSlotsForDate(currentDate);
+            const sched = SCHEDULE[currentDate.getDay()];
 
             // Stats
             document.getElementById('statsBar').innerHTML =
                 `<div class="stat"><strong>${appts.length}</strong> appointment${appts.length !== 1 ? 's' : ''}</div>` +
-                `<div class="stat"><strong>${TIME_SLOTS.length - appts.length}</strong> slots free</div>`;
+                `<div class="stat"><strong>${daySlots.length - appts.length}</strong> slots free</div>` +
+                `<div class="stat">${sched.label}</div>`;
 
             let html = '';
-            TIME_SLOTS.forEach(time => {
+            daySlots.forEach(time => {
                 const appt = appts.find(a => a.time === time);
                 if (appt) {
                     html += `
@@ -921,13 +966,17 @@
                 </div>`;
             });
 
-            // Time rows
-            TIME_SLOTS.forEach(time => {
+            // Time rows — use ALL_TIME_SLOTS, grey out closed hours per day
+            ALL_TIME_SLOTS.forEach(time => {
                 html += `<div class="week-time-label">${formatTime12(time)}</div>`;
                 days.forEach(d => {
                     const ds = dateStr(d);
+                    const daySlots = getTimeSlotsForDate(d);
+                    const isOpen = daySlots.includes(time);
                     const appt = allAppts.find(a => a.date === ds && a.time === time);
-                    if (appt) {
+                    if (!isOpen) {
+                        html += `<div class="week-cell closed"></div>`;
+                    } else if (appt) {
                         html += `<div class="week-cell" onclick="openEditModal('${appt.id}')">
                             <div class="mini-appt" title="${escHtml(appt.name)} — ${escHtml(appt.service)}">${escHtml(appt.name)}</div>
                         </div>`;
@@ -1010,8 +1059,10 @@
             document.getElementById('modalTitle').textContent = 'New Appointment';
             document.getElementById('formName').value = '';
             document.getElementById('formPhone').value = '';
-            document.getElementById('formDate').value = date || dateStr(currentDate);
-            document.getElementById('formTime').value = time || findNextFreeSlot();
+            const selectedDate = date || dateStr(currentDate);
+            document.getElementById('formDate').value = selectedDate;
+            updateTimeOptions(selectedDate);
+            document.getElementById('formTime').value = time || findNextFreeSlot(selectedDate);
             document.getElementById('formService').value = SERVICES[0];
             document.getElementById('formNotes').value = '';
 
@@ -1034,6 +1085,7 @@
             document.getElementById('formName').value = appt.name;
             document.getElementById('formPhone').value = appt.phone || '';
             document.getElementById('formDate').value = appt.date;
+            updateTimeOptions(appt.date);
             document.getElementById('formTime').value = appt.time;
             document.getElementById('formService').value = appt.service;
             document.getElementById('formNotes').value = appt.notes || '';
@@ -1054,10 +1106,12 @@
             if (e.target === document.getElementById('modalOverlay')) closeModal();
         }
 
-        function findNextFreeSlot() {
-            const appts = getAppointments().filter(a => a.date === dateStr(currentDate));
+        function findNextFreeSlot(dateVal) {
+            const ds = dateVal || dateStr(currentDate);
+            const appts = getAppointments().filter(a => a.date === ds);
             const taken = appts.map(a => a.time);
-            return TIME_SLOTS.find(t => !taken.includes(t)) || TIME_SLOTS[0];
+            const slots = getTimeSlotsForDate(ds);
+            return slots.find(t => !taken.includes(t)) || slots[0];
         }
 
         // ===== CRUD =====
