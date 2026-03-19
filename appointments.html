@@ -582,15 +582,184 @@
             .form-row { grid-template-columns: 1fr; }
             .view-toggle button { padding: 0.4rem 0.7rem; }
         }
+        /* ===== SPLASH SCREEN ===== */
+        .splash {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        .splash.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .splash-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            font-weight: 400;
+            color: var(--white);
+            margin-bottom: 0.3rem;
+            opacity: 0;
+            transform: translateY(15px);
+            animation: splashFadeUp 0.8s 0.2s ease forwards;
+        }
+
+        .splash-logo span { color: var(--gold); }
+
+        .splash-sub {
+            font-size: 0.7rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--gold);
+            opacity: 0;
+            animation: splashFadeUp 0.8s 0.5s ease forwards;
+        }
+
+        .splash-line {
+            width: 50px;
+            height: 1px;
+            background: var(--gold);
+            margin: 1.5rem 0;
+            opacity: 0;
+            animation: splashFadeUp 0.6s 0.8s ease forwards;
+        }
+
+        .splash-scissors {
+            font-size: 1.8rem;
+            color: var(--gold);
+            opacity: 0;
+            animation: splashFadeUp 0.6s 0.3s ease forwards;
+        }
+
+        .splash-loader {
+            width: 40px;
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+            margin-top: 2rem;
+            overflow: hidden;
+            opacity: 0;
+            animation: splashFadeUp 0.5s 1s ease forwards;
+        }
+
+        .splash-loader::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: var(--gold);
+            animation: splashLoad 1.2s 1s ease-in-out forwards;
+        }
+
+        @keyframes splashFadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes splashLoad {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(0); }
+        }
+
+        /* ===== SETTINGS MENU ===== */
+        .settings-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--white);
+            width: 36px;
+            height: 36px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .settings-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .settings-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--dark);
+            border: 1px solid rgba(196, 149, 58, 0.2);
+            min-width: 200px;
+            display: none;
+            z-index: 200;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .settings-dropdown.visible { display: block; }
+
+        .settings-dropdown button {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            background: none;
+            border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.7);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .settings-dropdown button:hover {
+            background: rgba(196, 149, 58, 0.1);
+            color: var(--gold);
+        }
+
+        .settings-dropdown button:last-child { border-bottom: none; }
+
+        .settings-dropdown .sd-icon { font-size: 1rem; width: 20px; text-align: center; }
+
+        .backup-info {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
     </style>
 </head>
 <body>
 
+    <!-- Splash Screen -->
+    <div class="splash" id="splash">
+        <div class="splash-scissors">&#9986;</div>
+        <div class="splash-logo">The House of <span>Barberium</span></div>
+        <div class="splash-sub">Appointments</div>
+        <div class="splash-line"></div>
+        <div class="splash-loader"></div>
+    </div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+
     <!-- Header -->
     <div class="header">
         <h1>Barberium <span>Appointments</span></h1>
-        <div class="header-actions">
+        <div class="header-actions" style="position:relative;">
             <button class="btn btn-primary" onclick="openAddModal()">+ New</button>
+            <button class="settings-btn" onclick="toggleSettings()" title="Settings">&#9776;</button>
+            <div class="settings-dropdown" id="settingsMenu">
+                <div class="backup-info" id="backupInfo">No backup yet</div>
+                <button onclick="exportBackup()"><span class="sd-icon">&#128190;</span> Download Backup</button>
+                <button onclick="document.getElementById('importFile').click(); toggleSettings();"><span class="sd-icon">&#128194;</span> Restore from Backup</button>
+            </div>
         </div>
     </div>
 
@@ -1174,6 +1343,89 @@
             if (e.key === 'ArrowRight') navigateDate(1);
             if (e.key === 't' || e.key === 'T') goToToday();
         });
+
+        // ===== SPLASH SCREEN =====
+        setTimeout(() => {
+            document.getElementById('splash').classList.add('hidden');
+        }, 2400);
+
+        // ===== SETTINGS MENU =====
+        function toggleSettings() {
+            const menu = document.getElementById('settingsMenu');
+            menu.classList.toggle('visible');
+            if (menu.classList.contains('visible')) updateBackupInfo();
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.header-actions')) {
+                document.getElementById('settingsMenu').classList.remove('visible');
+            }
+        });
+
+        function updateBackupInfo() {
+            const lastBackup = localStorage.getItem('barberium_last_backup');
+            const el = document.getElementById('backupInfo');
+            if (lastBackup) {
+                const d = new Date(lastBackup);
+                el.textContent = `Last backup: ${d.toLocaleDateString('en-GB')} at ${d.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})}`;
+            } else {
+                el.textContent = 'No backup yet — back up your data regularly';
+            }
+        }
+
+        // ===== BACKUP / RESTORE =====
+        function exportBackup() {
+            const data = {
+                version: 1,
+                exported: new Date().toISOString(),
+                appointments: getAppointments(),
+                contacts: getContacts()
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const date = new Date().toISOString().slice(0, 10);
+            a.href = url;
+            a.download = `barberium-backup-${date}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            localStorage.setItem('barberium_last_backup', new Date().toISOString());
+            toggleSettings();
+        }
+
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!data.appointments || !Array.isArray(data.appointments)) {
+                        alert('Invalid backup file — no appointments found.');
+                        return;
+                    }
+
+                    const count = data.appointments.length;
+                    const contactCount = data.contacts ? data.contacts.length : 0;
+                    if (!confirm(`Restore ${count} appointments and ${contactCount} contacts?\n\nThis will replace all current data.`)) {
+                        return;
+                    }
+
+                    saveAppointments(data.appointments);
+                    if (data.contacts) {
+                        localStorage.setItem('barberium_contacts', JSON.stringify(data.contacts));
+                    }
+                    render();
+                    alert(`Restored ${count} appointments and ${contactCount} contacts.`);
+                } catch (err) {
+                    alert('Could not read backup file. Make sure it\'s a valid .json file.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
 
         // ===== INIT =====
         initFormOptions();
