@@ -666,6 +666,182 @@
             100% { transform: translateX(0); }
         }
 
+        /* ===== LOCK SCREEN ===== */
+        .lock-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 8000;
+            background: var(--dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .lock-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .lock-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 400;
+            color: var(--white);
+            margin-bottom: 0.2rem;
+        }
+
+        .lock-logo span { color: var(--gold); }
+
+        .lock-sub {
+            font-size: 0.65rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 2.5rem;
+        }
+
+        .lock-icon {
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+        }
+
+        .pin-display {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .pin-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            transition: all 0.2s;
+        }
+
+        .pin-dot.filled {
+            background: var(--gold);
+            transform: scale(1.15);
+        }
+
+        .pin-dot.error {
+            border-color: var(--red);
+            background: var(--red);
+            animation: pinShake 0.4s ease;
+        }
+
+        @keyframes pinShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-4px); }
+        }
+
+        .pin-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            max-width: 260px;
+        }
+
+        .pin-key {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: none;
+            color: var(--white);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 300;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .pin-key:active {
+            background: var(--gold);
+            color: var(--black);
+            border-color: var(--gold);
+        }
+
+        .pin-key.fn {
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            border-color: transparent;
+        }
+
+        .pin-key.fn:active {
+            background: rgba(255,255,255,0.05);
+            color: var(--gold);
+        }
+
+        .lock-message {
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+            min-height: 1.2em;
+        }
+
+        .lock-message.error { color: var(--red); }
+
+        .biometric-btn {
+            margin-top: 1.5rem;
+            padding: 0.7rem 1.8rem;
+            border: 1px solid rgba(196, 149, 58, 0.3);
+            background: none;
+            color: var(--gold);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: none;
+        }
+
+        .biometric-btn.visible { display: inline-flex; align-items: center; gap: 0.5rem; }
+
+        .biometric-btn:active {
+            background: var(--gold);
+            color: var(--black);
+        }
+
+        /* PIN Setup */
+        .pin-setup-step {
+            font-size: 0.85rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        /* Quick lock button */
+        .lock-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--white);
+            width: 36px;
+            height: 36px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .lock-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
         /* ===== SETTINGS MENU ===== */
         .settings-btn {
             background: none;
@@ -746,6 +922,36 @@
         <div class="splash-loader"></div>
     </div>
 
+    <!-- Lock Screen -->
+    <div class="lock-screen" id="lockScreen">
+        <div class="lock-icon">&#128274;</div>
+        <div class="lock-logo">The House of <span>Barberium</span></div>
+        <div class="lock-sub" id="lockSub">Enter PIN</div>
+        <div class="pin-setup-step" id="pinSetupStep" style="display:none;"></div>
+        <div class="pin-display" id="pinDisplay">
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+        </div>
+        <div class="pin-pad">
+            <button class="pin-key" onclick="pinInput('1')">1</button>
+            <button class="pin-key" onclick="pinInput('2')">2</button>
+            <button class="pin-key" onclick="pinInput('3')">3</button>
+            <button class="pin-key" onclick="pinInput('4')">4</button>
+            <button class="pin-key" onclick="pinInput('5')">5</button>
+            <button class="pin-key" onclick="pinInput('6')">6</button>
+            <button class="pin-key" onclick="pinInput('7')">7</button>
+            <button class="pin-key" onclick="pinInput('8')">8</button>
+            <button class="pin-key" onclick="pinInput('9')">9</button>
+            <button class="pin-key fn" onclick="pinClear()">Clear</button>
+            <button class="pin-key" onclick="pinInput('0')">0</button>
+            <button class="pin-key fn" onclick="pinDelete()">&#9003;</button>
+        </div>
+        <div class="lock-message" id="lockMessage"></div>
+        <button class="biometric-btn" id="biometricBtn" onclick="tryBiometric()">&#128275; Face ID</button>
+    </div>
+
     <!-- Hidden file input for import -->
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
 
@@ -754,11 +960,14 @@
         <h1>Barberium <span>Appointments</span></h1>
         <div class="header-actions" style="position:relative;">
             <button class="btn btn-primary" onclick="openAddModal()">+ New</button>
+            <button class="lock-btn" onclick="lockApp()" title="Lock">&#128274;</button>
             <button class="settings-btn" onclick="toggleSettings()" title="Settings">&#9776;</button>
             <div class="settings-dropdown" id="settingsMenu">
                 <div class="backup-info" id="backupInfo">No backup yet</div>
                 <button onclick="exportBackup()"><span class="sd-icon">&#128190;</span> Download Backup</button>
                 <button onclick="document.getElementById('importFile').click(); toggleSettings();"><span class="sd-icon">&#128194;</span> Restore from Backup</button>
+                <button onclick="changePin(); toggleSettings();"><span class="sd-icon">&#128273;</span> Change PIN</button>
+                <button onclick="setupBiometricFromMenu(); toggleSettings();" id="menuBiometricBtn"><span class="sd-icon">&#128275;</span> Setup Face ID</button>
             </div>
         </div>
     </div>
@@ -1337,17 +1546,304 @@
 
         // ===== KEYBOARD =====
         document.addEventListener('keydown', (e) => {
+            // Lock screen keyboard input
+            if (!document.getElementById('lockScreen').classList.contains('hidden')) {
+                if (e.key >= '0' && e.key <= '9') pinInput(e.key);
+                if (e.key === 'Backspace') pinDelete();
+                if (e.key === 'Escape') pinClear();
+                return;
+            }
             if (e.key === 'Escape') closeModal();
             if (document.getElementById('modalOverlay').classList.contains('active')) return;
             if (e.key === 'ArrowLeft') navigateDate(-1);
             if (e.key === 'ArrowRight') navigateDate(1);
             if (e.key === 't' || e.key === 'T') goToToday();
+            if (e.key === 'l' || e.key === 'L') lockApp();
         });
 
-        // ===== SPLASH SCREEN =====
+        // ===== SPLASH SCREEN → LOCK SCREEN =====
         setTimeout(() => {
             document.getElementById('splash').classList.add('hidden');
+            initLockScreen();
         }, 2400);
+
+        // ===== PIN / LOCK =====
+        let pinBuffer = '';
+        let pinMode = 'unlock'; // 'setup1', 'setup2', 'unlock'
+        let pinSetupFirst = '';
+        const PIN_LENGTH = 4;
+        const AUTO_LOCK_MS = 5 * 60 * 1000; // 5 minutes
+        let autoLockTimer = null;
+
+        function getStoredPin() {
+            return localStorage.getItem('barberium_pin');
+        }
+
+        function initLockScreen() {
+            const storedPin = getStoredPin();
+            if (!storedPin) {
+                // First time — set up a PIN
+                pinMode = 'setup1';
+                document.getElementById('lockSub').textContent = 'Create your PIN';
+                document.getElementById('pinSetupStep').style.display = '';
+                document.getElementById('pinSetupStep').textContent = 'Step 1: Choose a 4-digit PIN';
+                document.getElementById('lockMessage').textContent = '';
+            } else {
+                pinMode = 'unlock';
+                document.getElementById('lockSub').textContent = 'Enter PIN';
+                document.getElementById('pinSetupStep').style.display = 'none';
+                // Try biometric automatically on load
+                checkBiometricAvailable();
+            }
+            pinBuffer = '';
+            updatePinDots();
+        }
+
+        function pinInput(digit) {
+            if (pinBuffer.length >= PIN_LENGTH) return;
+            pinBuffer += digit;
+            updatePinDots();
+
+            if (pinBuffer.length === PIN_LENGTH) {
+                setTimeout(() => handlePinComplete(), 200);
+            }
+        }
+
+        function pinDelete() {
+            pinBuffer = pinBuffer.slice(0, -1);
+            updatePinDots();
+        }
+
+        function pinClear() {
+            pinBuffer = '';
+            updatePinDots();
+        }
+
+        function updatePinDots() {
+            const dots = document.querySelectorAll('#pinDisplay .pin-dot');
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('filled', i < pinBuffer.length);
+                dot.classList.remove('error');
+            });
+        }
+
+        function handlePinComplete() {
+            if (pinMode === 'setup1') {
+                pinSetupFirst = pinBuffer;
+                pinBuffer = '';
+                pinMode = 'setup2';
+                document.getElementById('pinSetupStep').textContent = 'Step 2: Confirm your PIN';
+                updatePinDots();
+            } else if (pinMode === 'setup2') {
+                if (pinBuffer === pinSetupFirst) {
+                    localStorage.setItem('barberium_pin', pinBuffer);
+                    document.getElementById('lockMessage').textContent = '';
+                    unlockApp();
+                    // Offer biometric setup after PIN is created
+                    setTimeout(() => offerBiometricSetup(), 500);
+                } else {
+                    showPinError('PINs don\'t match — try again');
+                    pinMode = 'setup1';
+                    document.getElementById('pinSetupStep').textContent = 'Step 1: Choose a 4-digit PIN';
+                    pinSetupFirst = '';
+                }
+            } else {
+                // Unlock mode
+                if (pinBuffer === getStoredPin()) {
+                    unlockApp();
+                } else {
+                    showPinError('Wrong PIN');
+                }
+            }
+        }
+
+        function showPinError(msg) {
+            pinBuffer = '';
+            const dots = document.querySelectorAll('#pinDisplay .pin-dot');
+            dots.forEach(d => { d.classList.add('error'); d.classList.remove('filled'); });
+            const el = document.getElementById('lockMessage');
+            el.textContent = msg;
+            el.classList.add('error');
+            setTimeout(() => {
+                dots.forEach(d => d.classList.remove('error'));
+                el.classList.remove('error');
+                el.textContent = '';
+                updatePinDots();
+            }, 1200);
+        }
+
+        function unlockApp() {
+            document.getElementById('lockScreen').classList.add('hidden');
+            pinBuffer = '';
+            resetAutoLock();
+        }
+
+        function lockApp() {
+            document.getElementById('lockScreen').classList.remove('hidden');
+            pinBuffer = '';
+            pinMode = 'unlock';
+            document.getElementById('lockSub').textContent = 'Enter PIN';
+            document.getElementById('pinSetupStep').style.display = 'none';
+            document.getElementById('lockMessage').textContent = '';
+            updatePinDots();
+            checkBiometricAvailable();
+        }
+
+        // ===== AUTO LOCK =====
+        function resetAutoLock() {
+            clearTimeout(autoLockTimer);
+            autoLockTimer = setTimeout(() => {
+                if (!document.getElementById('lockScreen').classList.contains('hidden')) return;
+                lockApp();
+            }, AUTO_LOCK_MS);
+        }
+
+        ['click', 'touchstart', 'keydown', 'scroll'].forEach(evt => {
+            document.addEventListener(evt, () => {
+                if (document.getElementById('lockScreen').classList.contains('hidden')) {
+                    resetAutoLock();
+                }
+            }, { passive: true });
+        });
+
+        // ===== BIOMETRIC (WebAuthn) =====
+        let biometricAvailable = false;
+
+        async function checkBiometricAvailable() {
+            const btn = document.getElementById('biometricBtn');
+            try {
+                if (!window.PublicKeyCredential) { btn.classList.remove('visible'); return; }
+                const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                const credId = localStorage.getItem('barberium_webauthn_cred');
+                if (available && credId) {
+                    biometricAvailable = true;
+                    // Detect if likely iOS for label
+                    const isIOS = /iPhone|iPad/.test(navigator.userAgent);
+                    btn.innerHTML = isIOS ? '&#128275; Face ID' : '&#128275; Biometric';
+                    btn.classList.add('visible');
+                    // Auto-trigger biometric
+                    setTimeout(() => tryBiometric(), 300);
+                } else {
+                    btn.classList.remove('visible');
+                }
+            } catch (e) {
+                btn.classList.remove('visible');
+            }
+        }
+
+        async function offerBiometricSetup() {
+            try {
+                if (!window.PublicKeyCredential) return;
+                const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                if (!available) return;
+
+                const isIOS = /iPhone|iPad/.test(navigator.userAgent);
+                const label = isIOS ? 'Face ID / Touch ID' : 'biometric unlock (Windows Hello)';
+                if (!confirm(`Enable ${label} for faster access?`)) return;
+
+                await registerBiometric();
+            } catch (e) {
+                // Silently fail — PIN still works
+            }
+        }
+
+        async function registerBiometric() {
+            try {
+                const userId = new Uint8Array(16);
+                crypto.getRandomValues(userId);
+                const challenge = new Uint8Array(32);
+                crypto.getRandomValues(challenge);
+
+                const credential = await navigator.credentials.create({
+                    publicKey: {
+                        challenge: challenge,
+                        rp: { name: 'Barberium Appointments', id: location.hostname },
+                        user: {
+                            id: userId,
+                            name: 'barber',
+                            displayName: 'Barberium Owner'
+                        },
+                        pubKeyCredParams: [
+                            { type: 'public-key', alg: -7 },
+                            { type: 'public-key', alg: -257 }
+                        ],
+                        authenticatorSelection: {
+                            authenticatorAttachment: 'platform',
+                            userVerification: 'required'
+                        },
+                        timeout: 60000
+                    }
+                });
+
+                // Store credential ID for later authentication
+                const credIdArray = Array.from(new Uint8Array(credential.rawId));
+                localStorage.setItem('barberium_webauthn_cred', JSON.stringify(credIdArray));
+
+                const isIOS = /iPhone|iPad/.test(navigator.userAgent);
+                alert(isIOS ? 'Face ID enabled!' : 'Biometric unlock enabled!');
+            } catch (e) {
+                if (e.name !== 'NotAllowedError') {
+                    console.log('Biometric setup skipped:', e.message);
+                }
+            }
+        }
+
+        async function tryBiometric() {
+            try {
+                const credIdJson = localStorage.getItem('barberium_webauthn_cred');
+                if (!credIdJson) return;
+
+                const credId = new Uint8Array(JSON.parse(credIdJson));
+                const challenge = new Uint8Array(32);
+                crypto.getRandomValues(challenge);
+
+                await navigator.credentials.get({
+                    publicKey: {
+                        challenge: challenge,
+                        allowCredentials: [{
+                            type: 'public-key',
+                            id: credId,
+                            transports: ['internal']
+                        }],
+                        userVerification: 'required',
+                        timeout: 60000
+                    }
+                });
+
+                // If we get here, biometric auth succeeded
+                unlockApp();
+            } catch (e) {
+                if (e.name !== 'NotAllowedError') {
+                    document.getElementById('lockMessage').textContent = 'Use PIN instead';
+                }
+            }
+        }
+
+        function changePin() {
+            lockApp();
+            pinMode = 'setup1';
+            document.getElementById('lockSub').textContent = 'Change your PIN';
+            document.getElementById('pinSetupStep').style.display = '';
+            document.getElementById('pinSetupStep').textContent = 'Step 1: Choose a new 4-digit PIN';
+            document.getElementById('biometricBtn').classList.remove('visible');
+        }
+
+        async function setupBiometricFromMenu() {
+            try {
+                if (!window.PublicKeyCredential) {
+                    alert('Biometric login is not supported on this device.');
+                    return;
+                }
+                const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                if (!available) {
+                    alert('No biometric sensor found on this device. PIN will be used instead.');
+                    return;
+                }
+                await registerBiometric();
+            } catch (e) {
+                // silently fail
+            }
+        }
 
         // ===== SETTINGS MENU =====
         function toggleSettings() {
